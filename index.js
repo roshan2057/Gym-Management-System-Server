@@ -1,20 +1,23 @@
 const express = require("express");
 const bodyparser = require("body-parser");
 const UserRoute = require("./routes/UserRoute");
+const AdminRoute = require("./routes/AdminRoute");
 const cors = require("cors");
 const auth = require("./middleware/Auth");
 const app= express();
 const port = 8000;
 
 
+
 app.use(bodyparser.json());
 app.use(cors());
 
 app.use("/user", UserRoute);
+app.use("/admin",AdminRoute)
 
 
 app.get("/",(req, res)=>{
-    res.send("replay form server");
+    res.send("This is the Project of Roshan you are getting replay form a server");
 })
 
 

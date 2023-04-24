@@ -25,7 +25,7 @@ if(token){
     })
 }
 else{
-    res.send("no token")
+   return res.send("no token")
 }
 };
 

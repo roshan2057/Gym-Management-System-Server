@@ -45,6 +45,7 @@ const LoginDb = (data, res) => {
 
 
 
+
 const Getdata = (id, res) => {
     const mid = id;
 
@@ -64,6 +65,27 @@ const Getdata = (id, res) => {
     })
 }
 
+const Getmemberpackage = (id, res) => {
+    const mid = id;
+
+    pool.getConnection(async (error, conn) => {
+        if (error) throw error;
+        await conn.query("SELECT b.bid, b.user_id, b.package_id, b.renew_date, b.expire_date, b.status, p.pac_id, p.name, p.price FROM billing b JOIN package p ON b.package_id = p.pac_id WHERE b.user_id =? limit 1", [mid], (error, result) => {
+            if (error) {
+                throw error;
+            }
+            else if (result.length > 0) {
+                res (result);
+            }
+            else {
+                res (false);
+            }
+        })
+    })
+}
+
+
+
 
 const Getbilldata =(id,res)=>{
     const uid = id;
@@ -77,6 +99,19 @@ const Getbilldata =(id,res)=>{
     })
 }
 
+
+
+const Getpackage =(id,res)=>{
+    const pid = id;
+    pool.getConnection(async(error,conn)=>{
+        if(error) throw error;
+        await conn.query("SELECT * From package WHERE pac_id=?",[pid],(error,result)=>{
+            if(error) throw error;
+            else if(result.length>0) res(result);
+            else res(false);
+        })
+    })
+}
 
 
 
@@ -128,6 +163,8 @@ module.exports = {
     LoginDb,
     Getdata,
     Getbilldata,
+    Getpackage,
+    Getmemberpackage,
     insert,
     select
 }

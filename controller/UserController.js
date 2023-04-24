@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { RegisterDb, LoginDb, insert, select, Getdata, Getbilldata } = require("../model/Membersdb")
+const { RegisterDb, LoginDb, insert, select, Getdata, Getbilldata, Getpackage, Getmemberpackage } = require("../model/Membersdb")
 const private_key = "key";
 
 const createtoken = (id) => {
@@ -68,20 +68,13 @@ const DashboardController = (req, res) => {
 const FeeController = (req, res) => {
     try {
         const uid = req.data.id;
-        Getbilldata(uid, (success, error) => {
+        Getmemberpackage(uid, (success, error) => {
             if (error) { throw error; }
             else if (success) {
-                const bill = success;
-                const package = {
-                    name: 'roshan',
-                    class: 'bca',
-                    id: '5'
-                }
-                let combine = {bill,package}
-                console.log(combine);
-                const pid = success[0].package_id;
+                const data = success;
                
-            
+                console.log(data); 
+                res.json(data);      
 
             }
             else { console.log("no data"); }
