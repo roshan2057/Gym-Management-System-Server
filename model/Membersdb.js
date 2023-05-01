@@ -46,39 +46,20 @@ const LoginDb = (data, res) => {
 
 
 
-const Getdata = (id, res) => {
+const Getbmi = (id, res) => {
     const mid = id;
 
     pool.getConnection(async (error, conn) => {
         if (error) throw error;
-        await conn.query("SELECT * FROM members WHERE id =? limit 1", [mid], (error, result) => {
+        await conn.query("SELECT * FROM bmi WHERE user_id =? limit 1", [mid], (error, result) => {
             if (error) {
                 throw error;
             }
             else if (result.length > 0) {
-                res (result);
+                res(result);
             }
             else {
-                res (false);
-            }
-        })
-    })
-}
-
-const Getmemberpackage = (id, res) => {
-    const mid = id;
-
-    pool.getConnection(async (error, conn) => {
-        if (error) throw error;
-        await conn.query("SELECT b.bid, b.user_id, b.package_id, b.renew_date, b.expire_date, b.status, p.pac_id, p.name, p.price FROM billing b JOIN package p ON b.package_id = p.pac_id WHERE b.user_id =? limit 1", [mid], (error, result) => {
-            if (error) {
-                throw error;
-            }
-            else if (result.length > 0) {
-                res (result);
-            }
-            else {
-                res (false);
+                res(false);
             }
         })
     })
@@ -86,34 +67,132 @@ const Getmemberpackage = (id, res) => {
 
 
 
+const Getbillpackage = (id, res) => {
+    const mid = id;
 
-const Getbilldata =(id,res)=>{
+    pool.getConnection(async (error, conn) => {
+        if (error) throw error;
+        await conn.query("SELECT b.bid, b.user_id, b.package_id, b.renew_date, b.expire_date, b.status, p.pac_id, p.name, p.price FROM billing b JOIN package p ON b.package_id = p.pac_id WHERE b.user_id =? ORDER BY b.bid DESC LIMIT 1", [mid], (error, result) => {
+            if (error) {
+                throw error;
+            }
+            else if (result.length > 0) {
+                res(result);
+            }
+            else {
+                res(false);
+            }
+        })
+    })
+}
+
+
+
+
+const Getmemberdata = (id, res) => {
     const uid = id;
-    pool.getConnection(async(error,conn)=>{
+    pool.getConnection(async (error, conn) => {
         if (error) throw error;
-        await conn.query("SELECT * FROM billing WHERE user_id=? limit 1",[uid],(error,result)=>{
+        await conn.query("SELECT * FROM members WHERE id=? limit 1", [uid], (error, result) => {
             if (error) throw error;
-            else if (result.length>0)  res (result);
-            else res (false);
+            else if (result.length > 0) res(result);
+            else res(false);
         })
     })
 }
 
-
-
-const Getpackage =(id,res)=>{
-    const pid = id;
-    pool.getConnection(async(error,conn)=>{
-        if(error) throw error;
-        await conn.query("SELECT * From package WHERE pac_id=?",[pid],(error,result)=>{
-            if(error) throw error;
-            else if(result.length>0) res(result);
+const Getnoofmonths = (id, res) => {
+    const uid = id.packid;
+    pool.getConnection(async (error, conn) => {
+        if (error) throw error;
+        await conn.query("SELECT num_months FROM package WHERE pac_id=? limit 1", [uid], (error, result) => {
+            if (error) throw error;
+            else if (result.length > 0) res(result);
             else res(false);
         })
     })
 }
 
 
+
+const Getpackage = (res) => {
+    pool.getConnection(async (error, conn) => {
+        if (error) throw error;
+        await conn.query("SELECT * From package ", (error, result) => {
+            if (error) throw error;
+            else if (result.length > 0) res(result);
+            else res(false);
+        })
+    })
+}
+
+
+const Khlatiinsertdb = (data, expire, res) => {
+    pool.getConnection(async (error, conn) => {
+        if (error) throw error;
+        ""
+        await conn.query("INSERT INTO billing (user_id, package_id, medium, renew_date, expire_date, amount) VALUES (?,?,?,?,?,?)", [data.uid, data.packid, data.medium, data.renew_date, expire, data.amount], (error, result) => {
+            if (error) throw error;
+            // console.log(result);
+            res (result);
+        })
+    })
+}
+
+
+const Viewpackagedb = (res) => {
+    try {
+        pool.getConnection(async (error, conn) => {
+            if (error) throw error;
+            await conn.query("SELECT * FROM package", (error, result) => {
+                conn.release();
+                if (error) throw error;
+                res(result);
+            })
+        })
+    }
+    catch (exception) {
+        throw exception;
+    }
+}
+
+
+const Getexpdate = (id, res) => {
+    pool.getConnection(async (error, conn) => {
+        if (error) throw error;
+        await conn.query("SELECT expire_date FROM billing WHERE user_id=? ORDER BY bid DESC LIMIT 1", [id], (error, result) => {
+            conn.release();
+            if (error) {
+                throw error
+            }
+            else if (result.length > 0) {
+                res(result)
+            }
+            else { 
+                res("false") };
+
+        })
+    })
+}
+
+
+
+
+const Updatestatusdb = (id,res) => {
+    try {
+        pool.getConnection(async (error, conn) => {
+            if (error) throw error;
+            await conn.query("UPDATE billing SET status ='Success' WHERE bid=?",[id], (error, result) => {
+                conn.release();
+                if (error) throw error;
+                res(result);
+            })
+        })
+    }
+    catch (exception) {
+        throw exception;
+    }
+}
 
 
 const insert = (data, res) => {
@@ -161,10 +240,15 @@ const select = async (data, res) => {
 module.exports = {
     RegisterDb,
     LoginDb,
-    Getdata,
-    Getbilldata,
+    Getbmi,
+    Getmemberdata,
     Getpackage,
-    Getmemberpackage,
+    Getbillpackage,
+    Getnoofmonths,
+    Khlatiinsertdb,
+    Viewpackagedb,
+    Getexpdate,
+    Updatestatusdb,
     insert,
     select
 }

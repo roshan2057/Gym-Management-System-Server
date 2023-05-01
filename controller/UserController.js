@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const { RegisterDb, LoginDb, insert, select, Getdata, Getbilldata, Getpackage, Getmemberpackage } = require("../model/Membersdb")
+const { RegisterDb, LoginDb, insert, select, Getmemberpackage, Getbmi, Getalldetails, Getbillpackage, Getmemberdata, Getpackage } = require("../model/Membersdb");
+const { Viewpackagedb } = require("../model/Admindb");
 const private_key = "key";
 
 const createtoken = (id) => {
@@ -48,7 +49,7 @@ const LoginController = (req, res) => {
 const DashboardController = (req, res) => {
     try {
         const id = req.data.id;
-        Getdata(id, (success, error) => {
+        Getbmi(id, (success, error) => {
             if (error) throw error;
             else if (success) {
                 // console.log(success);
@@ -67,14 +68,19 @@ const DashboardController = (req, res) => {
 
 const FeeController = (req, res) => {
     try {
+        var member = '';
+
         const uid = req.data.id;
-        Getmemberpackage(uid, (success, error) => {
+        Getbillpackage(uid, (success, error) => {
             if (error) { throw error; }
             else if (success) {
                 const data = success;
+               Getmemberdata(uid,(memdata,error)=>{
+                if(error) throw error;
+                member = memdata;
+                 res.json({bill:data, user:member});      
                
-                console.log(data); 
-                res.json(data);      
+               })
 
             }
             else { console.log("no data"); }
@@ -86,6 +92,20 @@ const FeeController = (req, res) => {
     }
 }
 
+const Profilecontroller =(req,res)=>{
+    const uid=req.data.id;
+    Getmemberdata(uid,(success,error)=>{
+        if(error)throw error;
+        res.status(200).json({data:success});
+    })
+}
+
+const Viewpackagecontroller = (req,res)=>{
+    Viewpackagedb((success,error)=>{
+        if(error)throw error;
+        res.status(200).json({package:success});
+    })
+}
 
 
 const conr = (req, res) => {
@@ -137,10 +157,14 @@ const check = (req, res) => {
 
 
 
+
+
 module.exports = {
     RegisterController,
     LoginController,
     DashboardController,
     FeeController,
-    private_key
+    Profilecontroller,
+    private_key,
+    Viewpackagecontroller,
 }

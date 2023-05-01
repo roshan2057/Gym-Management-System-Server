@@ -20,7 +20,7 @@ if(token){
              
 
             console.log("auth",result);
-            next()
+            next();
         }
     })
 }

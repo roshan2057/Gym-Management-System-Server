@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { AdminLoginDb, addpackagedb, Updatepackagedb, Deletepackagedb } = require("../model/Admindb.js");
+const { AdminLoginDb, addpackagedb, Updatepackagedb, Deletepackagedb, Viewmembersdb, Viewpackagedb, Deletememberdb, Viewbilldb } = require("../model/Admindb.js");
 const private_key = "key";
 
 const createtoken = (id) => {
@@ -29,6 +29,18 @@ const LoginController = (req, res) => {
     }
     catch (error) {
         throw error
+    }
+}
+
+const Viewpackage= (req,res)=>{
+    try{
+Viewpackagedb((data,error)=>{
+    if (error) throw error;
+    res.status(200).json({data:data});
+})
+    }
+    catch (exception){
+        throw exception;
     }
 }
 
@@ -69,6 +81,52 @@ Deletepackagedb(req.params.id, (success,error)=>{
     }
 }
 
+const Viewmembers = (req,res)=>{
+    try{
+Viewmembersdb((data,error)=>{
+    if(error) throw error;
+
+res.status(200).json({data:data});
+})
+
+
+    }
+    catch(exception){
+throw exception;
+    }
+}
+
+const Deletemember = (req, res)=>{
+    try{
+        Deletememberdb(req.params.id, (success,error)=>{
+            if (error) throw error;
+            res.status(200).json({data:"member deleted"});
+        })
+    }
+    catch(exception){
+        throw exception;
+    }
+}
+
+
+const Billcontroller=(req,res)=>{
+Viewbilldb((success,error)=>{
+    if(error) throw error;
+
+    Viewmembersdb((data,error)=>{
+        if(error) throw error;
+        Viewpackagedb((package,error)=>{
+            if (error) throw error;
+    res.status(200).json({bill:success, member:data, package:package});
+
+        })
+    
+     })
+})
+}
+
+
+
 
 const DashboardController = (req, res) => {
     try {
@@ -96,5 +154,9 @@ module.exports = {
     Addpackage,
     Updatepackage,
     Deletepackage,
+    Viewmembers,
+    Deletemember,
+    Billcontroller,
+    Viewpackage,
  
 }

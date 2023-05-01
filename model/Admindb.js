@@ -85,10 +85,84 @@ const Deletepackagedb = (data, res)=>{
     }
 }
 
+const Viewpackagedb = (res)=>{
+    try{
+pool.getConnection(async(error,conn)=>{
+    if(error) throw error;
+    await conn.query("SELECT * FROM package",(error,result)=>{
+        conn.release();
+        if(error) throw error;
+        res(result);
+    })
+})
+    }
+    catch (exception){
+        throw exception;
+    }
+}
+
+const Viewmembersdb = (res)=>{
+    try{
+pool.getConnection(async(error,conn)=>{
+    if(error) throw error;
+    await conn.query("SELECT * FROM members",(error,result)=>{
+        conn.release();
+        if(error) throw error;
+        res (result);
+    })
+})
+    }
+    catch(exception){
+        throw exception;
+    }
+}
+
+const Deletememberdb= (data ,res)=>{
+    try{
+        const id = data;
+pool.getConnection(async(error,conn)=>{
+    if (error) throw error;
+    await conn.query("DELETE FROM members WHERE id=?",[id],(error,result)=>{
+        conn.release();
+        if (error) throw error;
+        console.log("member deleted");
+        res(result);
+        
+})
+})
+    }
+    catch (exception)
+    {
+        throw exception;
+    }
+}
+
+
+
+const Viewbilldb = (res)=>{
+    try{
+pool.getConnection(async(error,conn)=>{
+    if(error) throw error;
+    await conn.query("SELECT * FROM billing",(error,result)=>{
+        conn.release();
+        if(error) throw error;
+        res (result);
+    })
+})
+    }
+    catch(exception){
+        throw exception;
+    }
+}
+
 
 module.exports ={
     AdminLoginDb,
     addpackagedb,
     Updatepackagedb,
     Deletepackagedb,
+    Viewmembersdb,
+    Deletememberdb,
+    Viewpackagedb,
+    Viewbilldb,
 }
