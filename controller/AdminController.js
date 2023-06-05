@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { AdminLoginDb, addpackagedb, Updatepackagedb, Deletepackagedb, Viewmembersdb, Viewpackagedb, Deletememberdb, Viewbilldb } = require("../model/Admindb.js");
+const { AdminLoginDb, addpackagedb, Updatepackagedb, Deletepackagedb, Viewmembersdb, Viewpackagedb, Deletememberdb, Viewbilldb, viewpackagedb } = require("../model/Admindb.js");
 const private_key = "key";
 
 const createtoken = (id) => {
@@ -36,7 +36,7 @@ const Viewpackage= (req,res)=>{
     try{
 Viewpackagedb((data,error)=>{
     if (error) throw error;
-    res.status(200).json({data:data});
+    res.status(200).json({package:data});
 })
     }
     catch (exception){
@@ -95,6 +95,8 @@ res.status(200).json({data:data});
 throw exception;
     }
 }
+
+
 
 const Deletemember = (req, res)=>{
     try{

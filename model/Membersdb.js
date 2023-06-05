@@ -7,10 +7,12 @@ const RegisterDb = (data, res) => {
     const phone = data.phone;
     const password = data.password;
     const address = data.address;
+    const gender = data.gender;
+    const email = data.email;
 
     pool.getConnection(async (error, conn) => {
         if (error) throw error;
-        await conn.query("INSERT INTO members (name, phone, password, address) VALUES(?, ?, ?, ?)", [name, phone, password, address], (error, result) => {
+        await conn.query("INSERT INTO members (name, phone, password, address, email, gender) VALUES(?, ?, ?, ?, ?, ?)", [name, phone, password, address, email, gender], (error, result) => {
             conn.release();
             if (error) throw error;
             console.log(result)
@@ -23,7 +25,7 @@ const RegisterDb = (data, res) => {
 const LoginDb = (data, res) => {
     const phone = data.phone;
     const password = data.password;
-
+console.log(phone, password)
 
     pool.getConnection(async (error, conn) => {
         if (error) throw error;
@@ -101,6 +103,16 @@ const Getmemberdata = (id, res) => {
     })
 }
 
+const Updatememberdb =(id, data, res)=>{
+    pool.getConnection(async (error, conn) => {
+        if (error) throw error;
+        await conn.query("UPDATE members SET name =?, phone=?, email=?, address=? WHERE id=? limit 1", [data.name, data.phone, data.email, data.address, id], (error, result) => {
+            if (error) throw error;
+            res(result);
+        })
+    })
+}
+
 const Getnoofmonths = (id, res) => {
     const uid = id.packid;
     pool.getConnection(async (error, conn) => {
@@ -116,9 +128,10 @@ const Getnoofmonths = (id, res) => {
 
 
 const Getpackage = (res) => {
+    const status= 1;
     pool.getConnection(async (error, conn) => {
         if (error) throw error;
-        await conn.query("SELECT * From package ", (error, result) => {
+        await conn.query("SELECT * FROM package WHERE status=?",[status],(error, result) => {
             if (error) throw error;
             else if (result.length > 0) res(result);
             else res(false);
@@ -194,6 +207,29 @@ const Updatestatusdb = (id,res) => {
     }
 }
 
+const checkid=(id)=>{
+return new Promise((resolve,reject)=>{
+    pool.getConnection(async(error,conn)=>{
+        if(error) throw error;
+        await conn.query("SELECT * FROM date",(error,result)=>{
+            conn.release();
+            if (error) {
+                throw error
+            }
+            else if (result.length > 0) {
+               return resolve(true);
+            }
+            else { 
+                return reject(false) 
+            };
+
+
+        })
+    })
+})
+}
+
+
 
 const insert = (data, res) => {
     const username = data.username;
@@ -249,6 +285,7 @@ module.exports = {
     Viewpackagedb,
     Getexpdate,
     Updatestatusdb,
+    Updatememberdb,
     insert,
     select
 }

@@ -9,7 +9,7 @@ const khalti1 = (req, res) => {
   };
 
   let config = {
-    headers: { 'Authorization': 'Key test_secret_key_75e2a1f970ba44ed933a5383475eef0b' }
+    headers: { 'Authorization': process.env.khaltisecretkey }
   };
 
   axios.post("https://khalti.com/api/v2/payment/verify/", data, config)
@@ -86,6 +86,7 @@ if(success !== "false"){
 
     date.setUTCMonth(date.getUTCMonth() + pacmonth);
     const expiredate = date.toISOString().split('T')[0];
+    
     Khlatiinsertdb(data, expiredate, (success, error) => {
       if (error) throw error;
 
@@ -96,8 +97,11 @@ let config = {
 }
 
 console.log(config);
+
+
 //khalti server verification
-    // khalti1(config);
+
+    // khalti1(config); 
 
     })
 

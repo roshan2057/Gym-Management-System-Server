@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { RegisterDb, LoginDb, insert, select, Getmemberpackage, Getbmi, Getalldetails, Getbillpackage, Getmemberdata, Getpackage } = require("../model/Membersdb");
-const { Viewpackagedb } = require("../model/Admindb");
+const { RegisterDb, LoginDb, insert, select, Getmemberpackage, Getbmi, Getalldetails, Getbillpackage, Getmemberdata, Getpackage, Updatememberdb } = require("../model/Membersdb");
 const private_key = "key";
 
 const createtoken = (id) => {
@@ -11,7 +10,8 @@ const createtoken = (id) => {
 
 const RegisterController = (req, res) => {
     try {
-        RegisterDb(req.body, (success, error) => {
+
+        RegisterDb(req.body.data, (success, error) => {
             if (error) throw error;
             console.log(success.insertId);
             res.status(200).json({ data: "Data Inserted Successfully", id: success.insertId });
@@ -35,7 +35,7 @@ const LoginController = (req, res) => {
             }
             else {
                 console.log("no data found");
-                res.status(404).json({ data: "user not exits" });
+                res.status(404).json({ data: "User not Found!!" });
 
             }
 
@@ -100,10 +100,18 @@ const Profilecontroller =(req,res)=>{
     })
 }
 
+const Updateprofile =(req,res)=>{
+    const uid=req.data.id;
+   Updatememberdb(uid, req.body,(success,error)=>{
+    if(error)throw error;
+        res.status(200).json({data:success});
+   })
+}
+
 const Viewpackagecontroller = (req,res)=>{
-    Viewpackagedb((success,error)=>{
+    Getpackage((success,error)=>{
         if(error)throw error;
-        res.status(200).json({package:success});
+        res.status(200).json({package: success});
     })
 }
 
@@ -165,6 +173,7 @@ module.exports = {
     DashboardController,
     FeeController,
     Profilecontroller,
+    Updateprofile,
     private_key,
     Viewpackagecontroller,
 }

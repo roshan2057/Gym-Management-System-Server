@@ -1,6 +1,9 @@
 const pool = require("./database")
 
 
+// UPDATE date
+// SET rem_day = DATEDIFF(expdate, redate);
+
 
 
 
@@ -28,13 +31,16 @@ const AdminLoginDb = (data, res) => {
 }
 
 
+
+
 const addpackagedb = (data,res)=>{
     try{
 const pname= data.package_name;
+const noofmonth = data.package_month;
 const pprice= data.package_price;
 pool.getConnection(async(error,conn)=>{
     if(error) throw error;
-    await conn.query("INSERT INTO package (name,price) VALUES(?, ?)",[pname,pprice], (error,result)=>{
+    await conn.query("INSERT INTO package (name,num_months,price) VALUES(?,?, ?)",[pname,noofmonth,pprice], (error,result)=>{
         conn.release();
         if(error) throw error;
         console.log("added")
