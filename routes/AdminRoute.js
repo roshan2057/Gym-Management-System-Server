@@ -12,11 +12,10 @@ router.route('/product')
 .get(Viewpackage)
 .post(Addpackage);
 
+router.delete("/package/:id",Deletepackage)
 
-router.route('/product/:id')
-.put(Updatepackage)
-.delete(Deletepackage)
 
+router.put("/package/:id",Updatepackage)
 
 router.get("/members",Viewmembers);
 router.delete("/deletemember/:id",Deletemember);

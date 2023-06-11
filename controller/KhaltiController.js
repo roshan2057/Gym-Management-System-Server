@@ -57,11 +57,8 @@ const Khalticontroller = async(req, res) => {
     packid: req.body.product_name,
     today: new Date(),
     renew_date: renew_date,
-
     medium: "online",
-
-  }
-
+  } 
   var date = new Date();
 
  Getexpdate(data.uid,(success,error)=>{
@@ -101,7 +98,7 @@ console.log(config);
 
 //khalti server verification
 
-    // khalti1(config); 
+    khalti1(config); 
 
     })
 

@@ -1,7 +1,6 @@
 const mailer = require("nodemailer");
-// fmugerrfvzxsbngf
 
-const Sendmail= (emails)=>{
+const Sendmail= (email, message)=>{
 
   return new Promise(async(resolove, reject)=>{
 
@@ -16,9 +15,9 @@ const Sendmail= (emails)=>{
 
       let info = {
         from: process.env.gmailuser,
-    to: emails.join(","),
-    subject: "new2",
-    text: "You are getting this mail from node js",
+    to: email.join(","),
+    subject: "Rhino Gym Center",
+    text: message,
       };
 
       await transporter.sendMail(info, (error,info)=>{

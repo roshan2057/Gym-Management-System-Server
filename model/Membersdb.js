@@ -21,15 +21,55 @@ const RegisterDb = (data, res) => {
     })
 }
 
+const Insertbmi = (id,data, res)=>{
+    pool.getConnection(async (error, conn) => {
+        if (error) throw error;
+        await conn.query("INSERT INTO bmi (user_id, height, weight, bmi) VALUES(?, ?, ?, ?)", [id, data.height, data.weight, data.bmi], (error, result) => {
+            conn.release();
+            if (error) throw error;
+            console.log(result)
+            res(result);
+        });
+    })
+}
+
+
+const CheckpwdDb= (id, res)=>{
+    
+    pool.getConnection(async(error,conn)=>{
+        if(error) throw error;
+        await conn.query("SELECT password from members WHERE id =?",[id],(error,result)=>{
+            conn.release();
+            if(error) throw error;
+
+            res(result);
+        })
+    })
+}
+
+const ChangepwdDb =(data, res)=>{
+    pool.getConnection(async(error,conn)=>{
+        if(error) throw error;
+        await conn.query("UPDATE members SET password=? WHERE id=?",[data.password,data.id],(error,result)=>{
+            conn.release();
+            if(error) throw error;
+            else if(result.affectedRows >0)
+            {
+                res(result);
+            }
+            else{
+                res("cant update");
+            }
+        })
+    })
+}
+
 
 const LoginDb = (data, res) => {
     const phone = data.phone;
-    const password = data.password;
-console.log(phone, password)
-
     pool.getConnection(async (error, conn) => {
         if (error) throw error;
-        await conn.query("SELECT * FROM members WHERE phone = ? AND password=?", [phone, password], (error, result) => {
+        await conn.query("SELECT id, password FROM members WHERE phone = ? ", [phone], (error, result) => {
             if (error) {
                 throw error;
             }
@@ -95,7 +135,7 @@ const Getmemberdata = (id, res) => {
     const uid = id;
     pool.getConnection(async (error, conn) => {
         if (error) throw error;
-        await conn.query("SELECT * FROM members WHERE id=? limit 1", [uid], (error, result) => {
+        await conn.query("SELECT p.name, p.phone, p.email, p.address, b.height, b.weight, b.bmi FROM members p JOIN bmi b ON p.id = b.user_id WHERE p.id=? limit 1", [uid], (error, result) => {
             if (error) throw error;
             else if (result.length > 0) res(result);
             else res(false);
@@ -107,6 +147,16 @@ const Updatememberdb =(id, data, res)=>{
     pool.getConnection(async (error, conn) => {
         if (error) throw error;
         await conn.query("UPDATE members SET name =?, phone=?, email=?, address=? WHERE id=? limit 1", [data.name, data.phone, data.email, data.address, id], (error, result) => {
+            if (error) throw error;
+            res(result);
+        })
+    })
+}
+
+const Updatebmidb =(data, res)=>{
+    pool.getConnection(async (error, conn) => {
+        if (error) throw error;
+        await conn.query("UPDATE bmi SET height=?, weight=?, bmi=? WHERE user_id=? limit 1", [data.height, data.weight, data.bmi, data.id], (error, result) => {
             if (error) throw error;
             res(result);
         })
@@ -139,11 +189,22 @@ const Getpackage = (res) => {
     })
 }
 
+const Getstatement =(id,res)=>{
+    pool.getConnection(async(error,conn)=>{
+        if(error) throw error;
+        // await conn.query("SELECT * FROM billing WHERE user_id =? ORDER BY renew_date DESC",[id],(error, result)=>{
+            await conn.query("SELECT b.renew_date, b.medium, b.amount, p.name FROM billing b JOIN package p ON b.package_id = p.pac_id WHERE b.user_id=? ORDER BY b.renew_date DESC",[id],(error, result)=>{
+            if(error) throw error;
+            else if (result.length>0) res(result);
+            else res(false);
+        })
+    })
+}
+
 
 const Khlatiinsertdb = (data, expire, res) => {
     pool.getConnection(async (error, conn) => {
         if (error) throw error;
-        ""
         await conn.query("INSERT INTO billing (user_id, package_id, medium, renew_date, expire_date, amount) VALUES (?,?,?,?,?,?)", [data.uid, data.packid, data.medium, data.renew_date, expire, data.amount], (error, result) => {
             if (error) throw error;
             // console.log(result);
@@ -275,6 +336,7 @@ const select = async (data, res) => {
 
 module.exports = {
     RegisterDb,
+    Insertbmi,
     LoginDb,
     Getbmi,
     Getmemberdata,
@@ -286,6 +348,10 @@ module.exports = {
     Getexpdate,
     Updatestatusdb,
     Updatememberdb,
+    Updatebmidb,
+    Getstatement,
+    CheckpwdDb,
+    ChangepwdDb,
     insert,
     select
 }

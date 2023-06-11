@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { AdminLoginDb, addpackagedb, Updatepackagedb, Deletepackagedb, Viewmembersdb, Viewpackagedb, Deletememberdb, Viewbilldb, viewpackagedb } = require("../model/Admindb.js");
+const { AdminLoginDb, addpackagedb, Updatepackagedb, Deletepackagedb, Viewmembersdb, Viewpackagedb, Deletememberdb, Viewbilldb, viewpackagedb, Checkbillingdb, Checkbilldb } = require("../model/Admindb.js");
 const private_key = "key";
 
 const createtoken = (id) => {
@@ -100,10 +100,27 @@ throw exception;
 
 const Deletemember = (req, res)=>{
     try{
-        Deletememberdb(req.params.id, (success,error)=>{
-            if (error) throw error;
-            res.status(200).json({data:"member deleted"});
+        const uid = req.params.id;
+        Checkbilldb(uid, (success,error)=>{
+            if(error) throw error;
+            else if (!success){ 
+                Deletememberdb(uid, (success,error)=>{
+                    if (error) throw error;
+                    else if(success){
+                        res.status(200).json({data:"member deleted"});
+        
+                    }
+                    else{
+                        res.status(200).json({data:"Already Deleted"});
+                    }
+                })
+            }
+            else{
+                res.status(200).json({data:"Cannot delete because it contain payment"});
+            }
         })
+
+      
     }
     catch(exception){
         throw exception;

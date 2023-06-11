@@ -1,20 +1,44 @@
+const bcrypt = require("bcrypt");
+
 const jwt = require("jsonwebtoken");
-const { RegisterDb, LoginDb, insert, select, Getmemberpackage, Getbmi, Getalldetails, Getbillpackage, Getmemberdata, Getpackage, Updatememberdb } = require("../model/Membersdb");
+const { RegisterDb, LoginDb, insert, select, Getbmi, Getbillpackage, Getmemberdata, Getpackage, Updatememberdb, Getstatement, CheckpwdDb, ChangepwdDb, Insertbmi, Getbmidb, Updatebmidb } = require("../model/Membersdb");
 const private_key = "key";
 
+
 const createtoken = (id) => {
-    return jwt.sign({ id }, private_key, { expiresIn: 259200 });
+    return jwt.sign({ id }, process.env.private_key, { expiresIn: 259200 });
 }
 
 
 
-const RegisterController = (req, res) => {
+const RegisterController = async(req, res) => {
     try {
+        const password = req.body.data.password;
+        const hash = await bcrypt.hash(password,10);
+        const data ={
+        name:req.body.data.name,
+        phone:req.body.data.phone,
+        password:hash,
+        address:req.body.data.address,
+        gender:req.body.data.gender,
+        email:req.body.data.email
+        }
+        const bmi={
+            height: req.body.data.height,
+        weight: req.body.data.weight,
+        bmi:req.body.data.bmi
+        }
 
-        RegisterDb(req.body.data, (success, error) => {
+        RegisterDb(data, (success, error) => {
             if (error) throw error;
-            console.log(success.insertId);
-            res.status(200).json({ data: "Data Inserted Successfully", id: success.insertId });
+            const id = success.insertId;
+            Insertbmi(success.insertId,bmi,(success,error)=>{
+                if (error) throw error;
+            console.log(id);
+
+                res.status(200).json({ data: "Data Inserted Successfully", id: id });
+            })
+            
         })
     }
     catch (error) {
@@ -23,22 +47,28 @@ const RegisterController = (req, res) => {
 }
 
 const LoginController = (req, res) => {
+    const password = req.body.password;
     try {
-        LoginDb(req.body, (success, error) => {
+        LoginDb (req.body, async(success, error) => {
             if (error) throw error;
             else if (success) {
-                const token = createtoken(success[0].id)
-                console.log(success[0].id);
-                res.status(200).json({ token: token, id: success[0].id });
-
-
+                // return console.log(success);
+                const hashed = success[0].password;
+                console.log(hashed);
+                const ismatched = await bcrypt.compare(password,hashed);
+                if(ismatched){
+                    const token = createtoken(success[0].id)
+                    console.log(success[0].id);
+                    res.status(200).json({ token: token, id: success[0].id , user: "user"});
+                }
+                else{
+                    res.status(404).json({ data: "Password incorrect" });
+                }             
             }
             else {
                 console.log("no data found");
                 res.status(404).json({ data: "User not Found!!" });
-
             }
-
         })
     }
     catch (error) {
@@ -46,7 +76,39 @@ const LoginController = (req, res) => {
     }
 }
 
-const DashboardController = (req, res) => {
+const ChangepwdController = async(req,res)=>{
+    const password = req.body.password;
+    const newpassword = await bcrypt.hash(req.body.newpassword,10);
+    const uid = req.data.id;
+    CheckpwdDb(uid, async(success,error)=>{
+        if(error) throw error;
+        else if(success){
+            const hashed = success[0].password;
+            const ismatched = await bcrypt.compare(password,hashed);
+            if(ismatched){
+                const data={
+                    id:uid,
+                    password:newpassword
+                }
+                ChangepwdDb(data, (success,error)=>{
+                    if(error) throw error;
+                res.status(200).json({ data: "Updated sucessfully" });
+
+                })
+               
+            }
+            else{                
+                res.status(404).json({ data: "Password incorrect" });
+            }         
+        }
+        else{
+            console.log("no data found");
+            res.status(404).json({ data: "User not Found!!" });
+        }
+    })
+}
+
+const  Bmicontroller = (req, res) => {
     try {
         const id = req.data.id;
         Getbmi(id, (success, error) => {
@@ -96,9 +158,38 @@ const Profilecontroller =(req,res)=>{
     const uid=req.data.id;
     Getmemberdata(uid,(success,error)=>{
         if(error)throw error;
+        console.log(success)
         res.status(200).json({data:success});
     })
 }
+
+const Updatebmicontroller = (req,res)=>{
+   const data= {
+    id: req.data.id,
+    height: req.body.height,
+    weight: req.body.weight,
+    bmi: req.body.bmi,
+   }
+ Updatebmidb(data,(success,error)=>{
+    if(error)throw error;
+    res.status(200).json({data:"update successfully"});
+})
+}
+const Statementcontroller = (req,res)=>{
+    const uid = req.data.id;
+    Getstatement(uid,(success,error)=>{
+        if(error) throw error;
+        else if(success){
+console.log("date")
+            res.status(200).json({statement: success});
+        }
+        else{
+            res.status(200).json({statement: []});
+        }
+    })
+}
+
+
 
 const Updateprofile =(req,res)=>{
     const uid=req.data.id;
@@ -170,10 +261,13 @@ const check = (req, res) => {
 module.exports = {
     RegisterController,
     LoginController,
-    DashboardController,
+    Bmicontroller,
+    Updatebmicontroller,
     FeeController,
     Profilecontroller,
     Updateprofile,
+    Statementcontroller,
+    ChangepwdController,
     private_key,
     Viewpackagecontroller,
 }

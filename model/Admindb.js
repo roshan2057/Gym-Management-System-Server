@@ -73,6 +73,23 @@ pool.getConnection(async(error,conn)=>{
     }
 }
 
+const Checkbilldb =(id,res)=>{
+    pool.getConnection(async (error, conn) => {
+        if (error) throw error;
+        await conn.query("SELECT * FROM billing WHERE user_id =? limit 1", [id], (error, result) => {
+            if (error) {
+                throw error;
+            }
+            else if (result.length > 0) {
+                res(result);
+            }
+            else {
+                res(false);
+            }
+        })
+    })
+}
+
 const Deletepackagedb = (data, res)=>{
     try{
         const id = data;
@@ -130,9 +147,16 @@ pool.getConnection(async(error,conn)=>{
     if (error) throw error;
     await conn.query("DELETE FROM members WHERE id=?",[id],(error,result)=>{
         conn.release();
-        if (error) throw error;
-        console.log("member deleted");
-        res(result);
+        if (error) {
+            throw error;
+        }
+        else if (result.affectedRows > 0) {
+console.log("Deleted")
+            res(result);
+        }
+        else {
+            res(false);
+        }
         
 })
 })
@@ -168,6 +192,7 @@ module.exports ={
     Updatepackagedb,
     Deletepackagedb,
     Viewmembersdb,
+    Checkbilldb,
     Deletememberdb,
     Viewpackagedb,
     Viewbilldb,
