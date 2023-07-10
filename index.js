@@ -11,9 +11,6 @@ const auth = require("./middleware/Auth");
 const khalti = require("./controller/KhaltiController");
 const { Sendmail } = require("./controller/MailContorller");
 
-
-
-
 const app = express();
 const port = 8000;
 require('dotenv').config();
@@ -43,21 +40,21 @@ app.get("/check", auth, (req, res) => {
 
 
 
-app.post("/gmail",(req,res)=>{
+app.post("/gmail", (req, res) => {
 
 
     // let emails = ["ropep25966@jobbrett.com", "roshankarki1276@gmail.com"];
     const email = [req.body.email]
     const message = req.body.message
 
-   Sendmail(email, message)
-   .then(response=>{
-    console.log(response);
-    res.send("success");
-   })
-   .catch(error=>{
-    console.log(error)
-   })
+    Sendmail(email, message)
+        .then(response => {
+            console.log(response);
+            res.send("success");
+        })
+        .catch(error => {
+            console.log(error)
+        })
 })
 
 

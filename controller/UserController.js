@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 
 const jwt = require("jsonwebtoken");
 const { RegisterDb, LoginDb, insert, select, Getbmi, Getbillpackage, Getmemberdata, Getpackage, Updatememberdb, Getstatement, CheckpwdDb, ChangepwdDb, Insertbmi, Getbmidb, Updatebmidb } = require("../model/Membersdb");
-const private_key = "key";
+
 
 
 const createtoken = (id) => {
@@ -11,59 +11,59 @@ const createtoken = (id) => {
 
 
 
-const RegisterController = async(req, res) => {
+const RegisterController = async (req, res) => {
     try {
         const password = req.body.data.password;
-        const hash = await bcrypt.hash(password,10);
-        const data ={
-        name:req.body.data.name,
-        phone:req.body.data.phone,
-        password:hash,
-        address:req.body.data.address,
-        gender:req.body.data.gender,
-        email:req.body.data.email
+        const hash = await bcrypt.hash(password, 10);
+        const data = {
+            name: req.body.data.name,
+            phone: req.body.data.phone,
+            password: hash,
+            address: req.body.data.address,
+            gender: req.body.data.gender,
+            email: req.body.data.email
         }
-        const bmi={
+        const bmi = {
             height: req.body.data.height,
-        weight: req.body.data.weight,
-        bmi:req.body.data.bmi
+            weight: req.body.data.weight,
+            bmi: req.body.data.bmi
         }
 
         RegisterDb(data, (success, error) => {
-            if (error) throw error;
+            if (error) return console.log(error);
             const id = success.insertId;
-            Insertbmi(success.insertId,bmi,(success,error)=>{
-                if (error) throw error;
-            console.log(id);
+            Insertbmi(success.insertId, bmi, (success, error) => {
+                if (error) return console.log(error);
+                console.log(id);
 
                 res.status(200).json({ data: "Data Inserted Successfully", id: id });
             })
-            
+
         })
     }
     catch (error) {
-        throw error;
+        return console.log(error)
     }
 }
 
 const LoginController = (req, res) => {
     const password = req.body.password;
     try {
-        LoginDb (req.body, async(success, error) => {
-            if (error) throw error;
+        LoginDb(req.body, async (success, error) => {
+            if (error) return console.log(error);
             else if (success) {
                 // return console.log(success);
                 const hashed = success[0].password;
                 console.log(hashed);
-                const ismatched = await bcrypt.compare(password,hashed);
-                if(ismatched){
+                const ismatched = await bcrypt.compare(password, hashed);
+                if (ismatched) {
                     const token = createtoken(success[0].id)
                     console.log(success[0].id);
-                    res.status(200).json({ token: token, id: success[0].id , user: "user"});
+                    res.status(200).json({ token: token, id: success[0].id, user: "user" });
                 }
-                else{
+                else {
                     res.status(404).json({ data: "Password incorrect" });
-                }             
+                }
             }
             else {
                 console.log("no data found");
@@ -72,47 +72,49 @@ const LoginController = (req, res) => {
         })
     }
     catch (error) {
-        throw error
+        return console.log(error)
     }
 }
 
-const ChangepwdController = async(req,res)=>{
+const ChangepwdController = async (req, res) => {
     const password = req.body.password;
-    const newpassword = await bcrypt.hash(req.body.newpassword,10);
+    const newpassword = await bcrypt.hash(req.body.newpassword, 10);
     const uid = req.data.id;
-    CheckpwdDb(uid, async(success,error)=>{
-        if(error) throw error;
-        else if(success){
+    // return console.log(password, newpassword , uid)
+    CheckpwdDb(uid, async (success, error) => {
+        if (error) return console.log(error);
+        else if (success) {
             const hashed = success[0].password;
-            const ismatched = await bcrypt.compare(password,hashed);
-            if(ismatched){
-                const data={
-                    id:uid,
-                    password:newpassword
+            const ismatched = await bcrypt.compare(password, hashed);
+            if (ismatched) {
+                const data = {
+                    id: uid,
+                    password: newpassword
                 }
-                ChangepwdDb(data, (success,error)=>{
-                    if(error) throw error;
-                res.status(200).json({ data: "Updated sucessfully" });
+                ChangepwdDb(data, (success, error) => {
+                    if (error) return console.log(error);
+                    res.status(200).json({ data: "Updated sucessfully" });
 
                 })
-               
+
             }
-            else{                
+            else {
+
                 res.status(404).json({ data: "Password incorrect" });
-            }         
+            }
         }
-        else{
+        else {
             console.log("no data found");
             res.status(404).json({ data: "User not Found!!" });
         }
     })
 }
 
-const  Bmicontroller = (req, res) => {
+const Bmicontroller = (req, res) => {
     try {
         const id = req.data.id;
         Getbmi(id, (success, error) => {
-            if (error) throw error;
+            if (error) return console.log(error);
             else if (success) {
                 // console.log(success);
                 res.json(success)
@@ -123,7 +125,7 @@ const  Bmicontroller = (req, res) => {
         })
     }
     catch (error) {
-        throw error
+        return console.log(error)
     }
 
 }
@@ -134,15 +136,15 @@ const FeeController = (req, res) => {
 
         const uid = req.data.id;
         Getbillpackage(uid, (success, error) => {
-            if (error) { throw error; }
+            if (error) { return console.log(error); }
             else if (success) {
                 const data = success;
-               Getmemberdata(uid,(memdata,error)=>{
-                if(error) throw error;
-                member = memdata;
-                 res.json({bill:data, user:member});      
-               
-               })
+                Getmemberdata(uid, (memdata, error) => {
+                    if (error) return console.log(error);
+                    member = memdata;
+                    res.json({ bill: data, user: member });
+
+                })
 
             }
             else { console.log("no data"); }
@@ -150,59 +152,59 @@ const FeeController = (req, res) => {
 
     }
     catch (error) {
-        throw error;
+        return console.log(error);
     }
 }
 
-const Profilecontroller =(req,res)=>{
-    const uid=req.data.id;
-    Getmemberdata(uid,(success,error)=>{
-        if(error)throw error;
-        console.log(success)
-        res.status(200).json({data:success});
-    })
-}
-
-const Updatebmicontroller = (req,res)=>{
-   const data= {
-    id: req.data.id,
-    height: req.body.height,
-    weight: req.body.weight,
-    bmi: req.body.bmi,
-   }
- Updatebmidb(data,(success,error)=>{
-    if(error)throw error;
-    res.status(200).json({data:"update successfully"});
-})
-}
-const Statementcontroller = (req,res)=>{
+const Profilecontroller = (req, res) => {
     const uid = req.data.id;
-    Getstatement(uid,(success,error)=>{
-        if(error) throw error;
-        else if(success){
-console.log("date")
-            res.status(200).json({statement: success});
+    Getmemberdata(uid, (success, error) => {
+        if (error) return console.log(error);
+        console.log(success)
+        res.status(200).json({ data: success });
+    })
+}
+
+const Updatebmicontroller = (req, res) => {
+    const data = {
+        id: req.data.id,
+        height: req.body.height,
+        weight: req.body.weight,
+        bmi: req.body.bmi,
+    }
+    Updatebmidb(data, (success, error) => {
+        if (error) return console.log(error);
+        res.status(200).json({ data: "update successfully" });
+    })
+}
+const Statementcontroller = (req, res) => {
+    const uid = req.data.id;
+    Getstatement(uid, (success, error) => {
+        if (error) return console.log(error);
+        else if (success) {
+            console.log("date")
+            res.status(200).json({ statement: success });
         }
-        else{
-            res.status(200).json({statement: []});
+        else {
+            res.status(200).json({ statement: [] });
         }
     })
 }
 
 
 
-const Updateprofile =(req,res)=>{
-    const uid=req.data.id;
-   Updatememberdb(uid, req.body,(success,error)=>{
-    if(error)throw error;
-        res.status(200).json({data:success});
-   })
+const Updateprofile = (req, res) => {
+    const uid = req.data.id;
+    Updatememberdb(uid, req.body, (success, error) => {
+        if (error) return console.log(error);
+        res.status(200).json({ data: success });
+    })
 }
 
-const Viewpackagecontroller = (req,res)=>{
-    Getpackage((success,error)=>{
-        if(error)throw error;
-        res.status(200).json({package: success});
+const Viewpackagecontroller = (req, res) => {
+    Getpackage((success, error) => {
+        if (error) return console.log(error);
+        res.status(200).json({ package: success });
     })
 }
 
@@ -268,6 +270,5 @@ module.exports = {
     Updateprofile,
     Statementcontroller,
     ChangepwdController,
-    private_key,
     Viewpackagecontroller,
 }

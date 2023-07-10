@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { Getnoofmonths, Khlatiinsertdb,Getexpdate, Updatestatusdb } = require('../model/Membersdb');
+const { Getnoofmonths, Khlatiinsertdb, Getexpdate, Updatestatusdb } = require('../model/Membersdb');
 
 
 const khalti1 = (req, res) => {
@@ -15,12 +15,12 @@ const khalti1 = (req, res) => {
   axios.post("https://khalti.com/api/v2/payment/verify/", data, config)
     .then(response => {
       // console.log(response.data);
-      if(response.data.state.name === "Completed"){
+      if (response.data.state.name === "Completed") {
         console.log("done");
-Updatestatusdb(req.bid,(success,error)=>{
-  if(error) throw error;
-  console.log(success);
-})
+        Updatestatusdb(req.bid, (success, error) => {
+          if (error) return console.log(error);
+          console.log(success);
+        })
 
 
       }
@@ -39,7 +39,7 @@ Updatestatusdb(req.bid,(success,error)=>{
 
 
 
-const Khalticontroller = async(req, res) => {
+const Khalticontroller = async (req, res) => {
   // console.log(req.body);
   // const amount = req.body.amount;
   // const token = req.body.token;
@@ -54,60 +54,61 @@ const Khalticontroller = async(req, res) => {
     uid: req.data.id,
     amount: req.body.amount,
     token: req.body.token,
-    packid: req.body.product_name,
+    packid: req.body.product_identity,
     today: new Date(),
     renew_date: renew_date,
     medium: "online",
-  } 
+  }
   var date = new Date();
 
- Getexpdate(data.uid,(success,error)=>{
-  if(error)throw error;
-if(success !== "false"){
-  const expdate = new Date(success[0].expire_date);
-  if (expdate< date){
-    date= new Date();
-  }
-  else(
-    date = expdate    
-  )
-}else{
-  date= new Date();
+  Getexpdate(data.uid, (success, error) => {
+    if (error) return console.log(error);
+    if (success !== "false") {
+      const expdate = new Date(success[0].expire_date);
+      if (expdate < date) {
+        date = new Date();
+      }
+      else (
+        date = expdate
+      )
+    } else {
+      date = new Date();
 
-}
-  
-  Getnoofmonths(data, (success, error) => {
-    if (error) throw error;
-    const pacmonth = success[0].num_months;
+    }
+
+    Getnoofmonths(data, (success, error) => {
+      if (error) return console.log(error);
+      const pacmonth = success[0].num_months;
+      const amount = success[0].price;
+      data.amount = amount;
+
+      date.setUTCMonth(date.getUTCMonth() + pacmonth);
+      const expiredate = date.toISOString().split('T')[0];
+
+      Khlatiinsertdb(data, expiredate, (success, error) => {
+        if (error) return console.log(error);
+
+        let config = {
+          "token": data.token,
+          "amount": req.body.amount,
+          "bid": success.insertId,
+        }
+
+        console.log(config);
 
 
-    date.setUTCMonth(date.getUTCMonth() + pacmonth);
-    const expiredate = date.toISOString().split('T')[0];
-    
-    Khlatiinsertdb(data, expiredate, (success, error) => {
-      if (error) throw error;
+        //khalti server verification
 
-let config = {
-  "token": data.token,
-  "amount": data.amount,
-  "bid":success.insertId,  
-}
+        khalti1(config);
 
-console.log(config);
+      })
 
 
-//khalti server verification
 
-    khalti1(config); 
-
+      res.json({ data: data });
     })
 
-  
-
-    res.json({ data: data});
   })
-  
- })
 
 
 }
