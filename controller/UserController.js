@@ -54,7 +54,6 @@ const LoginController = (req, res) => {
             else if (success) {
                 // return console.log(success);
                 const hashed = success[0].password;
-                console.log(hashed);
                 const ismatched = await bcrypt.compare(password, hashed);
                 if (ismatched) {
                     const token = createtoken(success[0].id)

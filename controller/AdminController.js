@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { AdminLoginDb, addpackagedb, Updatepackagedb, Deletepackagedb, Viewmembersdb, Viewpackagedb, Deletememberdb, Viewbilldb, viewpackagedb, Checkbillingdb, Checkbilldb } = require("../model/Admindb.js");
+const { AdminLoginDb, addpackagedb, Updatepackagedb, Deletepackagedb, Viewmembersdb, Viewpackagedb, Deletememberdb, Viewbilldb, viewpackagedb, Checkbillingdb, Checkbilldb, Codlistdb, Onlinelistdb, Deletebmi, Userstatementdb, Acceptcoddb, Declinedb } = require("../model/Admindb.js");
 
 const createtoken = (id) => {
     return jwt.sign({ id }, process.env.admin_key, { expiresIn: 259200 });
@@ -102,16 +102,20 @@ const Deletemember = (req, res) => {
         Checkbilldb(uid, (success, error) => {
             if (error) return console.log(error);
             else if (!success) {
-                Deletememberdb(uid, (success, error) => {
+                Deletebmi(uid, (success, error) => {
                     if (error) return console.log(error);
-                    else if (success) {
-                        res.status(200).json({ data: "member deleted" });
+                    Deletememberdb(uid, (success, error) => {
+                        if (error) return console.log(error);
+                        else if (success) {
+                            res.status(200).json({ data: "member deleted" });
 
-                    }
-                    else {
-                        res.status(200).json({ data: "Already Deleted" });
-                    }
+                        }
+                        else {
+                            res.status(200).json({ data: "Already Deleted" });
+                        }
+                    })
                 })
+
             }
             else {
                 res.status(200).json({ data: "Cannot delete because it contain payment" });
@@ -142,28 +146,68 @@ const Billcontroller = (req, res) => {
     })
 }
 
-
-
-
-const DashboardController = (req, res) => {
+const Codlist = (req, res) => {
     try {
-        const id = req.data.id;
-        Getdata(id, (success, error) => {
+        Codlistdb((success, error) => {
             if (error) return console.log(error);
-            else if (success) {
-                // console.log(success);
-                res.json(success)
-            }
-            else {
-                console.log("no data)");
-            }
+            res.status(200).json({ success });
         })
     }
     catch (error) {
         return console.log(error)
     }
+}
+
+
+const Onlinelist = (req, res) => {
+    try {
+        Onlinelistdb((success, error) => {
+            if (error) return console.log(error);
+            res.status(200).json({ success });
+        })
+    }
+    catch (error) {
+        return console.log(error)
+    }
+}
+
+const UserStatement =(req,res)=>{
+try{
+    Userstatementdb(req.params.id,(success, error)=>{
+        if(error) return console.log(error);
+        res.status(200).json({success});
+    })
+}
+catch(e){
+    return console.log(e);
+}
+}
+
+const Acceptcod =(req,res)=>{
+try{
+    Acceptcoddb(req.params.id,(success,error)=>{
+        if(error) return console.log(error);
+        res.status(200).json({success});
+    })
+}
+catch{
 
 }
+}
+
+const Declinecod =(req,res)=>{
+    try{
+        Declinedb(req.params.id,(success,error)=>{
+            if(error) return console.log(error);
+            res.status(200).json({success});
+        })
+    }
+    catch{
+    
+    }
+    }
+
+
 
 
 module.exports = {
@@ -175,5 +219,11 @@ module.exports = {
     Deletemember,
     Billcontroller,
     Viewpackage,
+    Codlist,
+    Onlinelist,
+    UserStatement,
+    Acceptcod,
+    Declinecod,
+    
 
 }

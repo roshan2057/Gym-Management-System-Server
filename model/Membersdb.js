@@ -53,6 +53,7 @@ const CheckpwdDb = (id, res) => {
 const ChangepwdDb = (data, res) => {
     pool.getConnection(async (error, conn) => {
         if (error) return console.log(error);
+
         await conn.query("UPDATE members SET password=? WHERE id=?", [data.password, data.id], (error, result) => {
             conn.release();
             if (error) return console.log(error);
@@ -100,7 +101,7 @@ const Getbmi = (id, res) => {
 
     pool.getConnection(async (error, conn) => {
         if (error) return console.log(error);
-        await conn.query("SELECT * FROM bmi WHERE user_id =? limit 1", [mid], (error, result) => {
+        await conn.query("SELECT * FROM bmi WHERE user_id =?", [mid], (error, result) => {
             if (error) {
                 return console.log(error);
             }
@@ -276,28 +277,6 @@ const Updatestatusdb = (id, res) => {
     }
 }
 
-const checkid = (id) => {
-    return new Promise((resolve, reject) => {
-        pool.getConnection(async (error, conn) => {
-            if (error) return console.log(error);
-            await conn.query("SELECT * FROM date", (error, result) => {
-                conn.release();
-                if (error) {
-                    return console.log(error)
-                }
-                else if (result.length > 0) {
-                    return resolve(true);
-                }
-                else {
-                    return reject(false)
-                };
-
-
-            })
-        })
-    })
-}
-
 
 
 const insert = (data, res) => {
@@ -327,6 +306,7 @@ const select = async (data, res) => {
     const password = data.password;
     console.log(username, password)
     await con.query("SELECT * FROM admin WHERE username = ? AND password = ?", [username, password], (err, results) => {
+      conn.release();
         if (err) {
             throw err;
         }
@@ -347,9 +327,21 @@ const Codinsertdb = (data, expire, res) => {
     pool.getConnection(async (error, conn) => {
         if (error) throw error;
         await conn.query("INSERT INTO billing (user_id, package_id, medium, renew_date, expire_date, amount) VALUES (?,?,?,?,?,?)", [data.uid, data.packid, data.medium, data.renew_date, expire, data.amount], (error, result) => {
+           conn.release();
             if (error) throw error;
             // console.log(result);
             res(result);
+        })
+    })
+}
+
+const Checkemail =(email, res)=>{
+    pool.getConnection(async(error,conn)=>{
+        await conn.query("SELECT * FROM members where email=?",[email],(error,result)=>{
+            conn.release();
+            if(error) return console.log(error);
+           return res(result)
+
         })
     })
 }
@@ -373,6 +365,7 @@ module.exports = {
     CheckpwdDb,
     ChangepwdDb,
     Codinsertdb,
+    Checkemail,
     insert,
     select
 }

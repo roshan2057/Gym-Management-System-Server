@@ -143,6 +143,24 @@ const Viewmembersdb = (res) => {
     }
 }
 
+const Deletebmi = (id, res) => {
+    try 
+{        pool.getConnection(async (error, conn) => {
+            if (error) return console.log(error);
+            await conn.query("DELETE FROM bmi where user_id =?", [id], (error, result) => {
+                conn.release();
+                if (error) return console.log(error);                
+                    res(result);
+                
+
+            })
+        })
+    } catch (error) {
+        return console.log(error)
+    }
+}
+
+
 const Deletememberdb = (data, res) => {
     try {
         const id = data;
@@ -187,6 +205,85 @@ const Viewbilldb = (res) => {
     }
 }
 
+const Codlistdb = (res) => {
+    try {
+        medium = 'cod';
+        pool.getConnection(async (error, conn) => {
+            if (error) return console.log(error);
+            await conn.query("SELECT * FROM billing WHERE medium =? ", [medium], (error, result) => {
+                conn.release();
+                if (error) return console.log(error);
+                res(result);
+            })
+        })
+    }
+    catch (error) {
+        return console.log(error)
+    }
+}
+
+const Onlinelistdb = (res) => {
+    try {
+        medium = 'online';
+        pool.getConnection(async (error, conn) => {
+            if (error) return console.log(error);
+            await conn.query("SELECT * FROM billing WHERE medium =? ", [medium], (error, result) => {
+                conn.release();
+                if (error) return console.log(error);
+                res(result);
+            })
+        })
+    }
+    catch (error) {
+        return console.log(error)
+    }
+}
+
+const Userstatementdb =(id,res)=>{
+pool.getConnection(async(error,conn)=>{
+    if(error) return console.log(error);
+    await conn.query("SELECT * FROM billing WHERE user_id=?",[id],(error,result)=>{
+        conn.release();
+        if(error) return console.log(error);
+        res(result);
+    })
+})
+}
+
+const Acceptcoddb =(id,res)=>{
+    pool.getConnection(async(error,conn)=>{
+        if(error) return console.log(error);
+        await conn.query("UPDATE billing SET status=? WHERE bid =?",['success',id],(error,result)=>{
+            conn.release();
+            if(error) return console.log(error);
+            else if (result.changedRows>0){
+                res("updated sucessfully")
+            }
+            else{
+                res('Already Updated')
+            }
+        })
+    })
+}
+
+
+const Declinedb =(id,res)=>{
+    pool.getConnection(async(error,conn)=>{
+        if(error) return console.log(error);
+        await conn.query("DELETE FROM billing WHERE bid =?",[id],(error,result)=>{
+            conn.release();
+            if(error) return console.log(error);
+             if (result.affectedRows>0){
+                res("Deleted sucessfully")
+            }
+            else{
+                res('Already Deleted')
+            }
+        })
+    })
+}
+
+
 
 module.exports = {
     AdminLoginDb,
@@ -195,7 +292,13 @@ module.exports = {
     Deletepackagedb,
     Viewmembersdb,
     Checkbilldb,
+    Deletebmi,
     Deletememberdb,
     Viewpackagedb,
     Viewbilldb,
+    Codlistdb,
+    Onlinelistdb,
+    Userstatementdb,
+    Acceptcoddb,
+    Declinedb,
 }

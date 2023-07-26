@@ -8,7 +8,6 @@ const Admin_auth = (req, res, next) => {
                 return res.send("token invalid")
             }
             else {
-                console.log('admin')
                 next();
             }
         })

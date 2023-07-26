@@ -4,6 +4,7 @@ const { RegisterController, LoginController, FeeController, Profilecontroller, V
 const auth = require("../middleware/Auth");
 const Khalticontroller = require("../controller/KhaltiController");
 const { Codcontroller } = require("../controller/CodController");
+const { forgetpassword, Resetpassword } = require("../controller/Forgetpassword");
 
 
 router.post("/register", RegisterController);
@@ -27,7 +28,11 @@ router.post("/payment/cod", auth, Codcontroller)
 
 router.get("/viewpackage", Viewpackagecontroller);
 
-router.put("/changepassword", auth, ChangepwdController)
+router.put("/changepassword", auth, ChangepwdController);
+
+router.post("/forgetpassword", forgetpassword);
+router.post("/resetpassword", Resetpassword);
+
 
 
 router.route('/check')
