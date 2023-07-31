@@ -8,7 +8,7 @@ const pool = mysql.createPool({
   user: process.env.user,
   password: process.env.password,
   database: process.env.database_name,
-  connectionLimit: 20,
+  connectionLimit: process.env.limit,
 });
 
 pool.getConnection((error, connection) => {

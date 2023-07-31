@@ -34,7 +34,7 @@ router.get("/bill", Billcontroller);
 router.get('/userstatement/:id',admin_auth, UserStatement)
 
 router.get("/bill/cod",admin_auth, Codlist)
-router.get("/bill/online",admin_auth, Onlinelist)
+router.get("/bill/online/:id",admin_auth, Onlinelist)
 router.get("/bill/cod/:id",admin_auth,Acceptcod)
 router.delete("/bill/cod/:id",admin_auth,Declinecod )
 

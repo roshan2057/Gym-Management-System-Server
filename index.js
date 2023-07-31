@@ -24,13 +24,7 @@ app.use("/admin", AdminRoute)
 
 
 app.get("/", (req, res) => {
-    console.log(process.env.khaltisecretkey)
-    res.send("This is the Project of Roshan you are getting replay form a server");
-})
-
-
-app.get("/check", auth, (req, res) => {
-    res.send("token");
+    res.send("This is the Project of Roshan you are getting replay form a server",);
 })
 
 

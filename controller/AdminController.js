@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { AdminLoginDb, addpackagedb, Updatepackagedb, Deletepackagedb, Viewmembersdb, Viewpackagedb, Deletememberdb, Viewbilldb, viewpackagedb, Checkbillingdb, Checkbilldb, Codlistdb, Onlinelistdb, Deletebmi, Userstatementdb, Acceptcoddb, Declinedb } = require("../model/Admindb.js");
+const { default: axios } = require("axios");
 
 const createtoken = (id) => {
     return jwt.sign({ id }, process.env.admin_key, { expiresIn: 259200 });
@@ -159,11 +160,39 @@ const Codlist = (req, res) => {
 }
 
 
+// const Onlinelist = (req, res) => {
+//     try {
+//         Onlinelistdb((success, error) => {
+//             if (error) return console.log(error);
+//             res.status(200).json({ success });
+//         })
+//     }
+//     catch (error) {
+//         return console.log(error)
+//     }
+// }
+
+
+
 const Onlinelist = (req, res) => {
     try {
-        Onlinelistdb((success, error) => {
-            if (error) return console.log(error);
-            res.status(200).json({ success });
+        axios.get(`https://khalti.com/api/v2/merchant-transaction/?page=${req.params.id}`,{
+            headers:{
+                'Authorization': process.env.khaltisecretkey
+            }
+        }).then(response=>{
+
+            // Construct the data object to be sent as the response
+            const responseData = {
+                total_records:response.data.total_records,
+                total_pages:response.data.total_pages,
+                records: response.data.records,
+                total_amount: response.data.total_amount
+            };
+
+        return res.json(responseData);
+        }).catch(error=>{
+            console.log(error)
         })
     }
     catch (error) {
