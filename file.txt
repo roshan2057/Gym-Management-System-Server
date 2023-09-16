@@ -1,0 +1,19 @@
+
+Cart.findOne({
+  where: { id: cartId }, // Find the cart with the given cartId
+  include: [
+    { model: User },    // Include the User model
+    { model: Product }, // Include the Product model
+  ],
+})
+  .then((cart) => {
+    if (cart) {
+      // The cart object will have associated user and product details
+      console.log(cart.toJSON());
+    } else {
+      console.log('Cart not found');
+    }
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+  });

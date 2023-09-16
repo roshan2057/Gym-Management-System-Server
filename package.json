@@ -2,10 +2,11 @@
   "name": "gym-management-system-server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/app.js",
+  "type": "commonjs",
   "scripts": {
-    "run":"node index.js",
-    "start": "nodemon index.js",
+    "run": "node index.js",
+    "start": "nodemon /src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -20,9 +21,10 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.1",
-    "mysql": "^2.18.1",
+    "mysql2": "^3.6.1",
     "node-cron": "^3.0.2",
-    "nodemailer": "^6.9.4"
+    "nodemailer": "^6.9.4",
+    "sequelize": "^6.33.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
