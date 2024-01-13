@@ -9,8 +9,6 @@ const cors = require("cors");
 const khalti = require("./controller/KhaltiController");
 const { Sendmail } = require("./controller/MailContorller");
 const db = require('./model/connect');
-const Bill = require("./model/Bill");
-const { Sequelize } = require("sequelize");
 
 const app = express();
 const port = 8000;
@@ -18,43 +16,6 @@ require("dotenv").config();
 
 app.use(bodyparser.json());
 app.use(cors());
-
-// const cronJob = require('./controller/CronJob');
-// // To start the cron job 
-// // Automatic email sender
-// cronJob();
-
-
-const test= async ()=>{
-    const today = new Date().toISOString().split('T')[0];
-
-    Bill.findAll({
-      attributes: ['user_id'],
-      where: {
-        expire_date: {
-          [Sequelize.Op.lt]: today, // Use the less than operator
-        },
-      },
-    })
-      .then((results) => {
-        const userIDs = results.map((result) => result.get('user_id'));
-        console.log('User IDs with expire_date less than today:', userIDs);
-      })
-      .catch((err) => {
-        console.error('Error:', err);
-      });
-    
-    
-};
-
-// test();
-
-
-
-
-
-
-
 
 app.use("/user", UserRoute);
 app.use("/admin", AdminRoute);

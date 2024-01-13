@@ -12,6 +12,7 @@ const createtoken = (id) => {
 
 const RegisterController = async (req, res) => {
   try {
+    console.log(req.body)
     var { name, email, password, gender, address, phone, height, weight, bmi } =
       req.body.data;
     password = await bcrypt.hash(password, 10);
@@ -23,12 +24,11 @@ const RegisterController = async (req, res) => {
     const bmi_data = { user_id, height, weight, bmi };
     await Bmi.create(bmi_data);
 
-    const send_mail = await welcomemail(email);
+   await welcomemail(email);
 
     res.status(200).json({
       data: "Data Inserted Successfully",
       id: user_id,
-      email: send_mail,
     });
   } catch (error) {
     console.log(error);
@@ -145,7 +145,7 @@ const FeeController = async (req, res) => {
 const Profilecontroller = async (req, res) => {
   try {
     const profile = await Bmi.findOne({
-      where: { user_id: 6 },
+      where: { user_id: req.data.id },
       include: [
         { model: Member, attributes: ["name", "phone", "email", "address"] },
       ],
