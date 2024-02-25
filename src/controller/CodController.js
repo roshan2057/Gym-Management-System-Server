@@ -20,7 +20,14 @@ const Codcontroller = async (req, res) => {
     order: [["createdAt", "DESC"]], // Order by 'expire_date' column in descending order
     attributes: ["expire_date"],
   });
-  const expdate = new Date(getlastdate.expire_date);
+  var expdate;
+  if(getlastdate){
+
+     expdate = new Date(getlastdate.expire_date);
+  }else{
+     expdate = new Date();
+
+  }
   if (expdate < today) {
     date = today;
   } else date = expdate;
